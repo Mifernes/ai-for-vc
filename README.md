@@ -40,8 +40,8 @@ Engineering world, handles large amounts of data safely.
 ### Cloning the Repository
 
 ```bash
-git clone https://github.com/n8n-io/self-hosted-ai-starter-kit.git
-cd self-hosted-ai-starter-kit
+git clone https://github.com/theozturkbatu/ai-for-vc.git
+cd ai-for-vc
 ```
 
 ### Running n8n using Docker Compose
@@ -49,8 +49,8 @@ cd self-hosted-ai-starter-kit
 #### For Nvidia GPU users
 
 ```
-git clone https://github.com/n8n-io/self-hosted-ai-starter-kit.git
-cd self-hosted-ai-starter-kit
+git clone https://github.com/theozturkbatu/ai-for-vc.git
+cd ai-for-vc
 docker compose --profile gpu-nvidia up
 ```
 
@@ -73,8 +73,8 @@ If you want to run Ollama on your mac, check the
 for installation instructions, and run the starter kit as follows:
 
 ```
-git clone https://github.com/n8n-io/self-hosted-ai-starter-kit.git
-cd self-hosted-ai-starter-kit
+git clone https://github.com/theozturkbatu/ai-for-vc.git
+cd ai-for-vc
 docker compose up
 ```
 
@@ -84,8 +84,8 @@ by using `http://host.docker.internal:11434/` as the host.
 #### For everyone else
 
 ```
-git clone https://github.com/n8n-io/self-hosted-ai-starter-kit.git
-cd self-hosted-ai-starter-kit
+git clone https://github.com/theozturkbatu/ai-for-vc.git
+cd ai-for-vc
 docker compose --profile cpu up
 ```
 
