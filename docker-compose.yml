@@ -3,12 +3,20 @@ volumes:
   postgres_storage:
   ollama_storage:
   qdrant_storage:
+  openwebui:
+  flowise:
+  playwright-chrome:
+  changedetection:
+  browserless_storage:
 
 networks:
   demo:
 
 x-n8n: &service-n8n
   image: n8nio/n8n:latest
+  build:
+    context: .
+    dockerfile: Dockerfile
   networks: ['demo']
   environment:
     - DB_TYPE=postgresdb
@@ -19,6 +27,8 @@ x-n8n: &service-n8n
     - N8N_PERSONALIZATION_ENABLED=false
     - N8N_ENCRYPTION_KEY
     - N8N_USER_MANAGEMENT_JWT_SECRET
+    - NODE_FUNCTION_ALLOW_BUILTIN=*
+    - NODE_FUNCTION_ALLOW_EXTERNAL=cheerio,axios,puppeteer
   links:
     - postgres
 
@@ -41,9 +51,38 @@ x-init-ollama: &init-ollama
   entrypoint: /bin/sh
   command:
     - "-c"
-    - "sleep 3; OLLAMA_HOST=ollama:11434 ollama pull llama3.2"
+    - "sleep 3; OLLAMA_HOST=ollama:11434 ollama pull llama3.2; OLLAMA_HOST=ollama:11434 ollama pull nomic-embed-text"
 
 services:
+  flowise:
+    image: flowiseai/flowise
+    networks: ['demo']
+    restart: unless-stopped
+    container_name: flowise
+    environment:
+      - PORT=3001
+    ports:
+      - 3001:3001
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ~/.flowise:/root/.flowise
+    entrypoint: /bin/sh -c "sleep3; flowise start"
+
+  openwebui:
+    image: ghcr.io/open-webui/open-webui:main
+    networks: ['demo']
+    restart: unless-stopped
+    container_name: open-webui
+    ports:
+      - 8080:8080
+    environment:
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_DB
+    volumes:
+      - postgres_storage:/var/lib/postgresql/data
+  
   postgres:
     image: postgres:16-alpine
     networks: ['demo']
@@ -125,3 +164,35 @@ services:
     <<: *init-ollama
     depends_on:
       - ollama-gpu
+
+  changedetection:
+    image: ghcr.io/dgtlmoon/changedetection.io:latest
+    container_name: changedetection
+    hostname: changedetection
+    volumes:
+      - /Users/batuhanozturk/Documents/files:/datastore
+    environment:
+      - PORT=20400
+      - PUID=1000
+      - PGID=1000
+      - PLAYWRIGHT_DRIVER_URL=ws://playwright-chrome:3000/chrome?token=ZDOwg0o0Ozl3lzeslDSR232xAxvhvxSF5y270a7Cw1mjemWokde681IcfZDJ06wH&launch={"headless":false}  
+    ports:
+      - 20400:20400
+    restart: unless-stopped
+    depends_on:
+      - playwright-chrome
+
+  playwright-chrome:
+    hostname: playwright-chrome
+    image: browserless/chrome:arm64
+    restart: unless-stopped
+    environment:
+      - PLAYWRIGHT_TOKEN=
+      - SCREEN_WIDTH=1920
+      - SCREEN_HEIGHT=1080
+      - SCREEN_DEPTH=24
+      - ENABLE_DEBUGGER=true
+      - TIMEOUT=600000
+      - CONCURRENT=15
+    ports:
+      - 20450:3000  # Port mapping for Playwright WebSocket connection
