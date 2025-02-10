@@ -5,9 +5,7 @@ volumes:
   qdrant_storage:
   openwebui:
   flowise:
-  playwright-chrome:
   changedetection:
-  browserless_storage:
 
 networks:
   demo:
@@ -28,7 +26,7 @@ x-n8n: &service-n8n
     - N8N_ENCRYPTION_KEY
     - N8N_USER_MANAGEMENT_JWT_SECRET
     - NODE_FUNCTION_ALLOW_BUILTIN=*
-    - NODE_FUNCTION_ALLOW_EXTERNAL=cheerio,axios,puppeteer
+    - NODE_FUNCTION_ALLOW_EXTERNAL=cheerio,axios
   links:
     - postgres
 
